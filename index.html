@@ -3,17 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NEAR Protocol — Social Dashboard</title>
+<title>NEAR Protocol — Social & Market Dashboard</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body {
-    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    font-family: 'Segoe UI', system-ui, sans-serif;
     background: #0a0e17;
     color: #e0e6ed;
     min-height: 100vh;
 }
-
 .header {
     background: linear-gradient(135deg, #0d1321 0%, #1a1f35 100%);
     padding: 20px 30px;
@@ -21,6 +20,7 @@ body {
     display: flex;
     align-items: center;
     gap: 15px;
+    flex-wrap: wrap;
 }
 .header h1 {
     font-size: 22px;
@@ -29,174 +29,105 @@ body {
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
-.header .subtitle {
-    color: #6b7a8d;
-    font-size: 13px;
-}
-.header .badge {
-    background: #1a3a2a;
-    color: #4ade80;
+.header .sub { color: #6b7a8d; font-size: 13px; }
+.badge {
     padding: 4px 10px;
     border-radius: 12px;
     font-size: 12px;
     font-weight: 600;
 }
-.header .badge.trending {
-    background: #3a2a1a;
-    color: #fbbf24;
-}
+.badge.rank { background: #1a2a3a; color: #60a5fa; }
+.badge.trend { background: #3a2a1a; color: #fbbf24; }
 
-/* Карточки KPI */
+/* KPI */
 .kpi-row {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 12px;
-    padding: 20px 30px;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 10px;
+    padding: 16px 24px;
 }
 .kpi {
     background: #111827;
     border: 1px solid #1e2a3a;
-    border-radius: 12px;
-    padding: 16px;
+    border-radius: 10px;
+    padding: 14px;
 }
-.kpi .label {
-    font-size: 11px;
-    color: #6b7a8d;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 6px;
-}
-.kpi .value {
-    font-size: 24px;
-    font-weight: 700;
-    color: #fff;
-}
-.kpi .change {
-    font-size: 13px;
-    margin-top: 4px;
-}
-.kpi .change.up { color: #4ade80; }
-.kpi .change.down { color: #f87171; }
+.kpi .label { font-size: 10px; color: #6b7a8d; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+.kpi .value { font-size: 22px; font-weight: 700; color: #fff; }
+.kpi .change { font-size: 12px; margin-top: 2px; }
+.up { color: #4ade80; }
+.down { color: #f87171; }
 
-/* Графики */
-.charts {
-    padding: 10px 30px 30px;
+/* Fear & Greed двойной */
+.fg-dual {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 16px;
+    gap: 12px;
+    padding: 0 24px 12px;
 }
-.chart-card {
+.fg-card {
     background: #111827;
     border: 1px solid #1e2a3a;
-    border-radius: 12px;
-    padding: 20px;
+    border-radius: 10px;
+    padding: 16px;
+    text-align: center;
 }
-.chart-card.full { grid-column: 1 / -1; }
-.chart-card h3 {
-    font-size: 14px;
-    color: #9ca3af;
-    margin-bottom: 12px;
-    font-weight: 500;
-}
-.chart-wrap {
-    position: relative;
-    height: 250px;
-}
-.chart-card.full .chart-wrap { height: 300px; }
-
-/* Fear & Greed баром */
-.fg-bar {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 10px 30px;
-}
-.fg-meter {
-    flex: 1;
-    height: 28px;
-    background: linear-gradient(90deg, #ef4444 0%, #f97316 25%, #eab308 50%, #84cc16 75%, #22c55e 100%);
-    border-radius: 14px;
-    position: relative;
-}
-.fg-needle {
-    position: absolute;
-    top: -4px;
-    width: 4px;
-    height: 36px;
-    background: #fff;
-    border-radius: 2px;
-    box-shadow: 0 0 8px rgba(255,255,255,0.5);
-    transition: left 0.5s ease;
-}
-.fg-label {
-    font-size: 13px;
-    color: #9ca3af;
-    min-width: 120px;
-}
-.fg-value {
-    font-size: 28px;
-    font-weight: 700;
-    min-width: 60px;
-    text-align: right;
+.fg-card .fg-title { font-size: 11px; color: #6b7a8d; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+.fg-card .fg-num { font-size: 42px; font-weight: 800; }
+.fg-card .fg-class { font-size: 14px; margin-top: 4px; }
+.fg-meter { height: 10px; border-radius: 5px; margin-top: 10px;
+    background: linear-gradient(90deg, #ef4444 0%, #f97316 25%, #eab308 50%, #84cc16 75%, #22c55e 100%); position: relative; }
+.fg-dot {
+    position: absolute; top: -5px; width: 20px; height: 20px;
+    border-radius: 50%; border: 3px solid #fff; box-shadow: 0 0 8px rgba(0,0,0,0.5);
+    transform: translateX(-50%); transition: left 0.5s;
 }
 
 /* Trending */
-.trending-row {
-    padding: 0 30px 20px;
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-}
-.trend-chip {
-    background: #1e2a3a;
-    padding: 5px 12px;
-    border-radius: 16px;
-    font-size: 12px;
-    color: #9ca3af;
-}
-.trend-chip.near {
-    background: #1a3a2a;
-    color: #4ade80;
-    font-weight: 600;
-    border: 1px solid #4ade80;
-}
+.section-label { padding: 8px 24px 4px; font-size: 11px; color: #6b7a8d; text-transform: uppercase; letter-spacing: 1px; }
+.trending-row { padding: 4px 24px 12px; display: flex; gap: 6px; flex-wrap: wrap; }
+.chip { background: #1e2a3a; padding: 4px 10px; border-radius: 14px; font-size: 11px; color: #9ca3af; }
+.chip.near { background: #1a3a2a; color: #4ade80; font-weight: 600; border: 1px solid #4ade80; }
 
-/* Таблица аномалий */
-.anomalies {
-    padding: 0 30px 30px;
+/* Charts */
+.charts {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    padding: 8px 24px 24px;
 }
-.anomalies table {
-    width: 100%;
-    border-collapse: collapse;
+.card {
     background: #111827;
-    border-radius: 12px;
-    overflow: hidden;
+    border: 1px solid #1e2a3a;
+    border-radius: 10px;
+    padding: 16px;
 }
-.anomalies th {
-    background: #1a1f35;
-    padding: 10px 16px;
-    text-align: left;
-    font-size: 12px;
-    color: #6b7a8d;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-.anomalies td {
-    padding: 10px 16px;
-    font-size: 14px;
-    border-top: 1px solid #1e2a3a;
-}
+.card.full { grid-column: 1 / -1; }
+.card h3 { font-size: 13px; color: #9ca3af; margin-bottom: 10px; font-weight: 500; }
+.chart-wrap { position: relative; height: 240px; }
+.card.full .chart-wrap { height: 280px; }
 
-.section-title {
-    padding: 10px 30px 8px;
-    font-size: 13px;
-    color: #6b7a8d;
-    text-transform: uppercase;
-    letter-spacing: 1px;
+/* Anomalies */
+.anomalies { padding: 0 24px 24px; }
+.anomalies table { width: 100%; border-collapse: collapse; background: #111827; border-radius: 10px; overflow: hidden; }
+.anomalies th { background: #1a1f35; padding: 8px 14px; text-align: left; font-size: 11px; color: #6b7a8d; text-transform: uppercase; }
+.anomalies td { padding: 8px 14px; font-size: 13px; border-top: 1px solid #1e2a3a; }
+
+/* Insight box */
+.insight {
+    margin: 0 24px 12px;
+    background: linear-gradient(135deg, #1a2a1a 0%, #0d1321 100%);
+    border: 1px solid #2a4a2a;
+    border-radius: 10px;
+    padding: 16px 20px;
+    font-size: 14px;
+    line-height: 1.6;
 }
+.insight strong { color: #4ade80; }
+.insight .warn { color: #fbbf24; }
 
 @media (max-width: 768px) {
-    .charts { grid-template-columns: 1fr; }
+    .charts, .fg-dual { grid-template-columns: 1fr; }
     .kpi-row { grid-template-columns: repeat(2, 1fr); }
 }
 </style>
@@ -204,288 +135,278 @@ body {
 <body>
 
 <script>
-// === ДАННЫЕ (встраиваются из near_social.db) ===
-const DATA = [{"d":"2026-02-02","p":1.174,"v":183464580,"m":1512326835,"fg":14,"fc":"Extreme Fear"},{"d":"2026-02-03","p":1.1987,"v":215877670,"m":1542585966,"fg":17,"fc":"Extreme Fear"},{"d":"2026-02-04","p":1.1723,"v":195035131,"m":1508899188,"fg":14,"fc":"Extreme Fear"},{"d":"2026-02-05","p":1.1615,"v":168582858,"m":1495051771,"fg":12,"fc":"Extreme Fear"},{"d":"2026-02-06","p":0.9786,"v":375623479,"m":1262067178,"fg":9,"fc":"Extreme Fear"},{"d":"2026-02-07","p":1.0871,"v":336996290,"m":1399158941,"fg":6,"fc":"Extreme Fear"},{"d":"2026-02-08","p":1.0749,"v":171312639,"m":1383800558,"fg":7,"fc":"Extreme Fear"},{"d":"2026-02-09","p":1.0405,"v":88673828,"m":1338888892,"fg":14,"fc":"Extreme Fear"},{"d":"2026-02-10","p":1.0299,"v":119672211,"m":1326385434,"fg":9,"fc":"Extreme Fear"},{"d":"2026-02-11","p":0.9917,"v":131369457,"m":1276769431,"fg":11,"fc":"Extreme Fear"},{"d":"2026-02-12","p":0.9605,"v":169799503,"m":1236696130,"fg":5,"fc":"Extreme Fear"},{"d":"2026-02-13","p":0.962,"v":145698134,"m":1238344481,"fg":9,"fc":"Extreme Fear"},{"d":"2026-02-14","p":1.0221,"v":132628297,"m":1315937220,"fg":9,"fc":"Extreme Fear"},{"d":"2026-02-15","p":1.0847,"v":144231813,"m":1397391531,"fg":8,"fc":"Extreme Fear"},{"d":"2026-02-16","p":1.0551,"v":152857451,"m":1358424253,"fg":12,"fc":"Extreme Fear"},{"d":"2026-02-17","p":1.0577,"v":151765928,"m":1361800424,"fg":10,"fc":"Extreme Fear"},{"d":"2026-02-18","p":1.044,"v":134331104,"m":1344439693,"fg":8,"fc":"Extreme Fear"},{"d":"2026-02-19","p":1.012,"v":116602308,"m":1301425847,"fg":9,"fc":"Extreme Fear"},{"d":"2026-02-20","p":1.0057,"v":112537443,"m":1295637731,"fg":7,"fc":"Extreme Fear"},{"d":"2026-02-21","p":1.0515,"v":139022978,"m":1351699468,"fg":8,"fc":"Extreme Fear"},{"d":"2026-02-22","p":1.0593,"v":121118692,"m":1364888091,"fg":9,"fc":"Extreme Fear"},{"d":"2026-02-23","p":1.0176,"v":77886278,"m":1310667058,"fg":5,"fc":"Extreme Fear"},{"d":"2026-02-24","p":0.9788,"v":117501108,"m":1261272040,"fg":8,"fc":"Extreme Fear"},{"d":"2026-02-25","p":0.9677,"v":88832115,"m":1247972315,"fg":11,"fc":"Extreme Fear"},{"d":"2026-02-26","p":1.1704,"v":297580643,"m":1507521528,"fg":11,"fc":"Extreme Fear"},{"d":"2026-02-27","p":1.1276,"v":210405683,"m":1453967609,"fg":13,"fc":"Extreme Fear"},{"d":"2026-02-28","p":1.0934,"v":197865700,"m":1408963532,"fg":11,"fc":"Extreme Fear"},{"d":"2026-03-01","p":1.1655,"v":265925316,"m":1500885177,"fg":14,"fc":"Extreme Fear"},{"d":"2026-03-02","p":1.1478,"v":245985707,"m":1477329182,"fg":10,"fc":"Extreme Fear"},{"d":"2026-03-03","p":1.3396,"v":814698904,"m":1728152496,"fg":14,"fc":"Extreme Fear"}];
-
-const SNAP = {"price_usd":1.34,"volume_24h":814481336,"market_cap":1728152496,"price_change_24h":11.89,"price_change_7d":37.42,"price_change_30d":12.55,"ath":20.44,"ath_date":"2022-01-16","atl":0.527};
-
-const SOCIAL = {"twitter_followers":0,"reddit_subscribers":0,"reddit_active_users":0,"github_forks":759,"github_stars":2555,"github_commits_4w":97,"coingecko_rank":45};
-
-const TRENDING = [{"symbol":"PENGU","near_in_trending":0},{"symbol":"NEAR","near_in_trending":1},{"symbol":"AAVE","near_in_trending":0},{"symbol":"BTC","near_in_trending":0},{"symbol":"VVV","near_in_trending":0},{"symbol":"ROBO","near_in_trending":0},{"symbol":"POWER","near_in_trending":0},{"symbol":"SOL","near_in_trending":0},{"symbol":"HYPE","near_in_trending":0},{"symbol":"ETH","near_in_trending":0},{"symbol":"XAUT","near_in_trending":0},{"symbol":"FAI","near_in_trending":0},{"symbol":"AERO","near_in_trending":0},{"symbol":"RIVER","near_in_trending":0},{"symbol":"SUI","near_in_trending":0}];
+const D=[{"d":"2026-02-02","np":1.174,"nv":183464580,"bp":76937.0641,"ep":2269.3289,"nc":0,"bc":0,"ec":0,"rs":0,"nn":100.0,"bn":100.0,"en":100.0,"nfg":50,"nfc":"Neutral"},{"d":"2026-02-03","np":1.1987,"nv":215877670,"bp":78767.6582,"ep":2344.5123,"nc":2.1,"bc":2.38,"ec":3.31,"rs":-0.28,"nn":102.1,"bn":102.38,"en":103.31,"nfg":50,"nfc":"Neutral"},{"d":"2026-02-04","np":1.1723,"nv":195035131,"bp":75638.9567,"ep":2226.9856,"nc":-2.2,"bc":-3.97,"ec":-5.01,"rs":1.77,"nn":99.86,"bn":98.31,"en":98.13,"nfg":53,"nfc":"Neutral"},{"d":"2026-02-05","np":1.1615,"nv":168582858,"bp":73172.292,"ep":2152.087,"nc":-0.92,"bc":-3.26,"ec":-3.36,"rs":2.34,"nn":98.94,"bn":95.11,"en":94.83,"nfg":54,"nfc":"Neutral"},{"d":"2026-02-06","np":0.9786,"nv":375623479,"bp":62853.6904,"ep":1820.5693,"nc":-15.75,"bc":-14.1,"ec":-15.4,"rs":-1.65,"nn":83.36,"bn":81.69,"en":80.23,"nfg":48,"nfc":"Neutral"},{"d":"2026-02-07","np":1.0871,"nv":336996290,"bp":70523.9542,"ep":2060.735,"nc":11.09,"bc":12.2,"ec":13.19,"rs":-1.12,"nn":92.6,"bn":91.66,"en":90.81,"nfg":48,"nfc":"Neutral"},{"d":"2026-02-08","np":1.0749,"nv":171312639,"bp":69296.8068,"ep":2091.0404,"nc":-1.12,"bc":-1.74,"ec":1.47,"rs":0.62,"nn":91.56,"bn":90.07,"en":92.14,"nfg":51,"nfc":"Neutral"},{"d":"2026-02-09","np":1.0405,"nv":88673828,"bp":70542.3733,"ep":2095.1306,"nc":-3.2,"bc":1.8,"ec":0.2,"rs":-5.0,"nn":88.63,"bn":91.69,"en":92.32,"nfg":10,"nfc":"Extreme Fear"},{"d":"2026-02-10","np":1.0299,"nv":119672211,"bp":70096.4069,"ep":2104.4578,"nc":-1.02,"bc":-0.63,"ec":0.45,"rs":-0.39,"nn":87.73,"bn":91.11,"en":92.73,"nfg":9,"nfc":"Extreme Fear"},{"d":"2026-02-11","np":0.9917,"nv":131369457,"bp":68779.9098,"ep":2018.9238,"nc":-3.71,"bc":-1.88,"ec":-4.06,"rs":-1.83,"nn":84.47,"bn":89.4,"en":88.97,"nfg":7,"nfc":"Extreme Fear"},{"d":"2026-02-12","np":0.9605,"nv":169799503,"bp":66937.5814,"ep":1939.4322,"nc":-3.15,"bc":-2.68,"ec":-3.94,"rs":-0.47,"nn":81.81,"bn":87.0,"en":85.46,"nfg":12,"nfc":"Extreme Fear"},{"d":"2026-02-13","np":0.962,"nv":145698134,"bp":66184.5777,"ep":1945.7351,"nc":0.16,"bc":-1.12,"ec":0.32,"rs":1.28,"nn":81.94,"bn":86.02,"en":85.74,"nfg":45,"nfc":"Neutral"},{"d":"2026-02-14","np":1.0221,"nv":132628297,"bp":68838.8749,"ep":2047.3627,"nc":6.25,"bc":4.01,"ec":5.22,"rs":2.24,"nn":87.06,"bn":89.47,"en":90.22,"nfg":38,"nfc":"Fear"},{"d":"2026-02-15","np":1.0847,"nv":144231813,"bp":69765.5964,"ep":2085.5237,"nc":6.12,"bc":1.35,"ec":1.86,"rs":4.78,"nn":92.39,"bn":90.68,"en":91.9,"nfg":60,"nfc":"Neutral"},{"d":"2026-02-16","np":1.0551,"nv":152857451,"bp":68716.5834,"ep":1963.9573,"nc":-2.73,"bc":-1.5,"ec":-5.83,"rs":-1.23,"nn":89.87,"bn":89.32,"en":86.54,"nfg":53,"nfc":"Neutral"},{"d":"2026-02-17","np":1.0577,"nv":151765928,"bp":68907.7835,"ep":2000.6104,"nc":0.25,"bc":0.28,"ec":1.87,"rs":-0.03,"nn":90.09,"bn":89.56,"en":88.16,"nfg":56,"nfc":"Neutral"},{"d":"2026-02-18","np":1.044,"nv":134331104,"bp":67489.4554,"ep":1992.0049,"nc":-1.3,"bc":-2.06,"ec":-0.43,"rs":0.76,"nn":88.93,"bn":87.72,"en":87.78,"nfg":60,"nfc":"Neutral"},{"d":"2026-02-19","np":1.012,"nv":116602308,"bp":66456.3538,"ep":1954.7535,"nc":-3.07,"bc":-1.53,"ec":-1.87,"rs":-1.53,"nn":86.2,"bn":86.38,"en":86.14,"nfg":55,"nfc":"Neutral"},{"d":"2026-02-20","np":1.0057,"nv":112537443,"bp":66918.6842,"ep":1946.9093,"nc":-0.62,"bc":0.7,"ec":-0.4,"rs":-1.32,"nn":85.66,"bn":86.98,"en":85.79,"nfg":54,"nfc":"Neutral"},{"d":"2026-02-21","np":1.0515,"nv":139022978,"bp":67970.294,"ep":1967.8121,"nc":4.55,"bc":1.57,"ec":1.07,"rs":2.98,"nn":89.57,"bn":88.35,"en":86.71,"nfg":61,"nfc":"Greed"},{"d":"2026-02-22","np":1.0593,"nv":121118692,"bp":67977.909,"ep":1973.6643,"nc":0.74,"bc":0.01,"ec":0.3,"rs":0.73,"nn":90.23,"bn":88.36,"en":86.97,"nfg":45,"nfc":"Neutral"},{"d":"2026-02-23","np":1.0176,"nv":77886278,"bp":67585.1172,"ep":1954.1914,"nc":-3.94,"bc":-0.58,"ec":-0.99,"rs":-3.36,"nn":86.68,"bn":87.84,"en":86.11,"nfg":32,"nfc":"Fear"},{"d":"2026-02-24","np":0.9788,"nv":117501108,"bp":64577.5532,"ep":1853.6958,"nc":-3.81,"bc":-4.45,"ec":-5.14,"rs":0.64,"nn":83.37,"bn":83.94,"en":81.68,"nfg":36,"nfc":"Fear"},{"d":"2026-02-25","np":0.9677,"nv":88832115,"bp":64074.111,"ep":1852.8103,"nc":-1.13,"bc":-0.78,"ec":-0.05,"rs":-0.35,"nn":82.43,"bn":83.28,"en":81.65,"nfg":31,"nfc":"Fear"},{"d":"2026-02-26","np":1.1704,"nv":297580643,"bp":67947.3919,"ep":2053.1887,"nc":20.95,"bc":6.05,"ec":10.81,"rs":14.9,"nn":99.69,"bn":88.32,"en":90.48,"nfg":100,"nfc":"Extreme Greed"},{"d":"2026-02-27","np":1.1276,"nv":210405683,"bp":67469.0604,"ep":2027.3015,"nc":-3.66,"bc":-0.7,"ec":-1.26,"rs":-2.95,"nn":96.05,"bn":87.69,"en":89.33,"nfg":73,"nfc":"Greed"},{"d":"2026-02-28","np":1.0934,"nv":197865700,"bp":65883.991,"ep":1931.3206,"nc":-3.03,"bc":-2.35,"ec":-4.73,"rs":-0.68,"nn":93.13,"bn":85.63,"en":85.11,"nfg":57,"nfc":"Neutral"},{"d":"2026-03-01","np":1.1655,"nv":265925316,"bp":67008.4544,"ep":1965.0366,"nc":6.59,"bc":1.71,"ec":1.75,"rs":4.89,"nn":99.28,"bn":87.1,"en":86.59,"nfg":83,"nfc":"Extreme Greed"},{"d":"2026-03-02","np":1.1478,"nv":245985707,"bp":65713.499,"ep":1938.4115,"nc":-1.52,"bc":-1.93,"ec":-1.35,"rs":0.41,"nn":97.77,"bn":85.41,"en":85.42,"nfg":77,"nfc":"Greed"},{"d":"2026-03-03","np":1.3539,"nv":822765941,"bp":67737.5322,"ep":1982.1631,"nc":18.8,"bc":3.08,"ec":2.26,"rs":15.72,"nn":115.32,"bn":88.04,"en":87.35,"nfg":89,"nfc":"Extreme Greed"}];
 </script>
 
-<!-- Header -->
 <div class="header">
     <h1>NEAR Protocol</h1>
-    <span class="subtitle">Social & Market Dashboard</span>
-    <span class="badge" id="rank-badge"></span>
-    <span class="badge trending" id="trend-badge" style="display:none">TRENDING</span>
+    <span class="sub">Market & Sentiment Dashboard</span>
+    <span class="badge rank" id="badge-rank"></span>
+    <span class="badge trend" id="badge-trend" style="display:none">TRENDING</span>
 </div>
 
-<!-- KPI Cards -->
+<!-- KPI -->
 <div class="kpi-row" id="kpi-row"></div>
 
-<!-- Fear & Greed -->
-<div class="section-title">Market Sentiment</div>
-<div class="fg-bar">
-    <div class="fg-value" id="fg-val"></div>
-    <div class="fg-meter"><div class="fg-needle" id="fg-needle"></div></div>
-    <div class="fg-label" id="fg-label"></div>
+<!-- Dual Fear & Greed -->
+<div class="fg-dual">
+    <div class="fg-card">
+        <div class="fg-title">NEAR Fear & Greed</div>
+        <div class="fg-num" id="near-fg-num"></div>
+        <div class="fg-class" id="near-fg-class"></div>
+        <div class="fg-meter"><div class="fg-dot" id="near-fg-dot"></div></div>
+    </div>
+    <div class="fg-card">
+        <div class="fg-title">Market Fear & Greed</div>
+        <div class="fg-num" style="color:#ef4444">14</div>
+        <div class="fg-class" style="color:#ef4444">Extreme Fear</div>
+        <div class="fg-meter"><div class="fg-dot" id="mkt-fg-dot" style="left:14%;background:#ef4444"></div></div>
+    </div>
 </div>
 
+<!-- Insight -->
+<div class="insight" id="insight"></div>
+
 <!-- Trending -->
-<div class="section-title">CoinGecko Trending</div>
+<div class="section-label">CoinGecko Trending</div>
 <div class="trending-row" id="trending-row"></div>
 
 <!-- Charts -->
 <div class="charts">
-    <div class="chart-card full">
-        <h3>NEAR Price + Fear & Greed Index (30d)</h3>
-        <div class="chart-wrap"><canvas id="chart-main"></canvas></div>
+    <div class="card full">
+        <h3>NEAR vs BTC vs ETH — Normalized Performance (base=100)</h3>
+        <div class="chart-wrap"><canvas id="ch-perf"></canvas></div>
     </div>
-    <div class="chart-card">
+    <div class="card">
+        <h3>NEAR Price + NEAR Fear & Greed</h3>
+        <div class="chart-wrap"><canvas id="ch-price-fg"></canvas></div>
+    </div>
+    <div class="card">
+        <h3>Relative Strength vs BTC (daily)</h3>
+        <div class="chart-wrap"><canvas id="ch-rs"></canvas></div>
+    </div>
+    <div class="card">
         <h3>Volume 24h</h3>
-        <div class="chart-wrap"><canvas id="chart-volume"></canvas></div>
+        <div class="chart-wrap"><canvas id="ch-vol"></canvas></div>
     </div>
-    <div class="chart-card">
-        <h3>Fear & Greed History</h3>
-        <div class="chart-wrap"><canvas id="chart-fg"></canvas></div>
-    </div>
-    <div class="chart-card">
-        <h3>Daily Price Change %</h3>
-        <div class="chart-wrap"><canvas id="chart-change"></canvas></div>
-    </div>
-    <div class="chart-card">
-        <h3>GitHub Activity</h3>
-        <div class="chart-wrap"><canvas id="chart-github"></canvas></div>
+    <div class="card">
+        <h3>NEAR Fear & Greed History</h3>
+        <div class="chart-wrap"><canvas id="ch-nfg"></canvas></div>
     </div>
 </div>
 
 <!-- Anomalies -->
-<div class="section-title">Price Anomalies (>10% daily change)</div>
-<div class="anomalies"><table id="anomaly-table">
-    <thead><tr><th>Date</th><th>Change</th><th>Price</th><th>Volume</th><th>Fear&Greed</th></tr></thead>
-    <tbody></tbody>
+<div class="section-label">Anomalies (>10% daily move)</div>
+<div class="anomalies"><table>
+    <thead><tr><th>Date</th><th>NEAR</th><th>BTC</th><th>Diff</th><th>Volume</th><th>NEAR F&G</th></tr></thead>
+    <tbody id="anom-body"></tbody>
 </table></div>
 
 <script>
-// === Chart.js defaults ===
 Chart.defaults.color = '#9ca3af';
 Chart.defaults.borderColor = '#1e2a3a';
 Chart.defaults.font.family = "'Segoe UI', system-ui, sans-serif";
 
-const labels = DATA.map(d => d.d.slice(5)); // MM-DD
-const prices = DATA.map(d => d.p);
-const volumes = DATA.map(d => d.v);
-const fgValues = DATA.map(d => d.fg);
+const last = D[D.length - 1];
+const labels = D.map(d => d.d.slice(5));
 
 // === KPI ===
 const kpis = [
-    { label: 'Price', value: '$' + SNAP.price_usd.toFixed(4), change: SNAP.price_change_24h, suffix: '% 24h' },
-    { label: '7D Change', value: (SNAP.price_change_7d > 0 ? '+' : '') + SNAP.price_change_7d.toFixed(2) + '%', change: SNAP.price_change_7d },
-    { label: '30D Change', value: (SNAP.price_change_30d > 0 ? '+' : '') + SNAP.price_change_30d.toFixed(2) + '%', change: SNAP.price_change_30d },
-    { label: 'Volume 24h', value: '$' + (SNAP.volume_24h / 1e6).toFixed(0) + 'M' },
-    { label: 'Market Cap', value: '$' + (SNAP.market_cap / 1e9).toFixed(2) + 'B' },
-    { label: 'ATH Distance', value: '-' + ((1 - SNAP.price_usd / SNAP.ath) * 100).toFixed(0) + '%', sub: 'ATH: $' + SNAP.ath.toFixed(2) },
-    { label: 'GitHub Stars', value: SOCIAL.github_stars.toLocaleString() },
-    { label: 'Commits/4w', value: SOCIAL.github_commits_4w },
+    { l: 'Price', v: '$' + last.np.toFixed(4), c: last.nc, s: '% 24h' },
+    { l: '7D Perf', v: (last.nn > D[Math.max(0,D.length-8)].nn ? '+' : '') + ((last.np / D[Math.max(0,D.length-8)].np - 1) * 100).toFixed(1) + '%',
+      c: last.np / D[Math.max(0,D.length-8)].np - 1 > 0 ? 1 : -1 },
+    { l: '30D Perf', v: (last.nn >= 100 ? '+' : '') + (last.nn - 100).toFixed(1) + '%', c: last.nn - 100 },
+    { l: 'vs BTC 30D', v: (last.nn - last.bn >= 0 ? '+' : '') + (last.nn - last.bn).toFixed(1) + 'pp', c: last.nn - last.bn },
+    { l: 'vs ETH 30D', v: (last.nn - last.en >= 0 ? '+' : '') + (last.nn - last.en).toFixed(1) + 'pp', c: last.nn - last.en },
+    { l: 'Volume 24h', v: '$' + (last.nv / 1e6).toFixed(0) + 'M' },
+    { l: 'ATH Distance', v: '-' + ((1 - last.np / 20.44) * 100).toFixed(0) + '%', sub: 'ATH: $20.44' },
+    { l: 'CG Rank', v: '#45' },
 ];
-
-const kpiRow = document.getElementById('kpi-row');
+const kpiEl = document.getElementById('kpi-row');
 kpis.forEach(k => {
-    const div = document.createElement('div');
-    div.className = 'kpi';
-    let changeHtml = '';
-    if (k.change !== undefined) {
-        const cls = k.change >= 0 ? 'up' : 'down';
-        const arrow = k.change >= 0 ? '+' : '';
-        changeHtml = `<div class="change ${cls}">${arrow}${k.change.toFixed(2)}${k.suffix || '%'}</div>`;
-    }
-    if (k.sub) changeHtml = `<div class="change" style="color:#6b7a8d">${k.sub}</div>`;
-    div.innerHTML = `<div class="label">${k.label}</div><div class="value">${k.value}</div>${changeHtml}`;
-    kpiRow.appendChild(div);
+    const d = document.createElement('div'); d.className = 'kpi';
+    let ch = '';
+    if (k.c !== undefined) { ch = `<div class="change ${k.c >= 0 ? 'up' : 'down'}">${k.c >= 0 ? '+' : ''}${typeof k.c === 'number' && !k.s ? '' : (k.c).toFixed ? k.c.toFixed(2) : k.c}${k.s || ''}</div>`; }
+    if (k.sub) ch = `<div class="change" style="color:#6b7a8d">${k.sub}</div>`;
+    d.innerHTML = `<div class="label">${k.l}</div><div class="value">${k.v}</div>${ch}`;
+    kpiEl.appendChild(d);
 });
 
-document.getElementById('rank-badge').textContent = '#' + SOCIAL.coingecko_rank;
-if (TRENDING.some(t => t.near_in_trending)) {
-    document.getElementById('trend-badge').style.display = '';
+document.getElementById('badge-rank').textContent = '#45';
+document.getElementById('badge-trend').style.display = '';
+
+// === NEAR F&G ===
+const nfg = last.nfg;
+const nfc = last.nfc;
+document.getElementById('near-fg-num').textContent = nfg;
+document.getElementById('near-fg-num').style.color = nfg > 75 ? '#22c55e' : nfg > 50 ? '#84cc16' : nfg > 25 ? '#f97316' : '#ef4444';
+document.getElementById('near-fg-class').textContent = nfc;
+document.getElementById('near-fg-class').style.color = document.getElementById('near-fg-num').style.color;
+document.getElementById('near-fg-dot').style.left = nfg + '%';
+document.getElementById('near-fg-dot').style.background = document.getElementById('near-fg-num').style.color;
+
+// === Insight ===
+const spread = nfg - 14; // NEAR F&G - Market F&G
+let insightText = `<strong>NEAR F&G: ${nfg}</strong> vs Market F&G: 14 — разница <strong>${spread} пунктов</strong>. `;
+if (spread > 50) {
+    insightText += `NEAR показывает <strong>экстремальную силу</strong> против рынка. Когда весь рынок в Extreme Fear, NEAR растёт — это может быть: `;
+    insightText += `<br>1) Сильный органический интерес (новости/партнёрства) `;
+    insightText += `<br>2) Координированный памп (следите за объёмом после спайка) `;
+    insightText += `<br>3) Технический отскок (ATH -93%, cheap по историческим меркам)`;
 }
+const perfDiff = last.nn - last.bn;
+if (perfDiff > 20) {
+    insightText += `<br><br><span class="warn">NEAR опережает BTC на ${perfDiff.toFixed(0)}pp за 30 дней — значительное расхождение.</span>`;
+}
+document.getElementById('insight').innerHTML = insightText;
 
-// === Fear & Greed ===
-const latestFG = DATA[DATA.length - 1];
-document.getElementById('fg-val').textContent = latestFG.fg;
-document.getElementById('fg-val').style.color = latestFG.fg < 25 ? '#ef4444' : latestFG.fg < 50 ? '#f97316' : latestFG.fg < 75 ? '#84cc16' : '#22c55e';
-document.getElementById('fg-needle').style.left = latestFG.fg + '%';
-document.getElementById('fg-label').textContent = latestFG.fc;
-
-// === Trending chips ===
-const trendRow = document.getElementById('trending-row');
-TRENDING.forEach(t => {
-    const chip = document.createElement('span');
-    chip.className = 'trend-chip' + (t.near_in_trending ? ' near' : '');
-    chip.textContent = '$' + t.symbol;
-    trendRow.appendChild(chip);
+// === Trending ===
+const coins = ['PENGU','NEAR','AAVE','BTC','VVV','ROBO','POWER','SOL','HYPE','ETH','XAUT','FAI','AERO','RIVER','SUI'];
+const trendEl = document.getElementById('trending-row');
+coins.forEach(s => {
+    const c = document.createElement('span');
+    c.className = 'chip' + (s === 'NEAR' ? ' near' : '');
+    c.textContent = '$' + s;
+    trendEl.appendChild(c);
 });
 
-// === Main chart: Price + F&G ===
-new Chart(document.getElementById('chart-main'), {
+// === Chart: Normalized Performance ===
+new Chart(document.getElementById('ch-perf'), {
     type: 'line',
     data: {
         labels,
-        datasets: [{
-            label: 'NEAR Price ($)',
-            data: prices,
-            borderColor: '#3b82f6',
-            backgroundColor: 'rgba(59,130,246,0.1)',
-            fill: true,
-            tension: 0.3,
-            pointRadius: 2,
-            yAxisID: 'y',
-        }, {
-            label: 'Fear & Greed',
-            data: fgValues,
-            borderColor: '#f97316',
-            borderDash: [5, 3],
-            tension: 0.3,
-            pointRadius: 2,
-            yAxisID: 'y1',
-        }]
+        datasets: [
+            { label: 'NEAR', data: D.map(d => d.nn), borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,0.08)', fill: true, tension: 0.3, pointRadius: 1, borderWidth: 2.5 },
+            { label: 'BTC', data: D.map(d => d.bn), borderColor: '#f97316', tension: 0.3, pointRadius: 1, borderWidth: 1.5, borderDash: [4,3] },
+            { label: 'ETH', data: D.map(d => d.en), borderColor: '#8b5cf6', tension: 0.3, pointRadius: 1, borderWidth: 1.5, borderDash: [4,3] },
+        ]
     },
     options: {
-        responsive: true,
-        maintainAspectRatio: false,
+        responsive: true, maintainAspectRatio: false,
         interaction: { mode: 'index', intersect: false },
         scales: {
-            y: { position: 'left', title: { display: true, text: 'Price ($)' },
-                 grid: { color: '#1e2a3a' } },
-            y1: { position: 'right', min: 0, max: 100,
-                  title: { display: true, text: 'F&G' },
-                  grid: { drawOnChartArea: false } },
+            y: { title: { display: true, text: 'Performance (base=100)' }, grid: { color: '#1e2a3a' } }
+        },
+        plugins: {
+            legend: { labels: { usePointStyle: true } },
+            annotation: { annotations: { line1: { type: 'line', yMin: 100, yMax: 100, borderColor: '#4b5563', borderDash: [3,3], borderWidth: 1 } } }
+        }
+    }
+});
+
+// === Chart: Price + NEAR F&G ===
+new Chart(document.getElementById('ch-price-fg'), {
+    type: 'line',
+    data: {
+        labels,
+        datasets: [
+            { label: 'Price ($)', data: D.map(d => d.np), borderColor: '#3b82f6', fill: false, tension: 0.3, pointRadius: 1, yAxisID: 'y' },
+            { label: 'NEAR F&G', data: D.map(d => d.nfg), borderColor: '#22c55e', borderDash: [4,3], tension: 0.3, pointRadius: 2,
+              pointBackgroundColor: D.map(d => d.nfg > 75 ? '#22c55e' : d.nfg > 50 ? '#84cc16' : d.nfg > 25 ? '#f97316' : '#ef4444'), yAxisID: 'y1' },
+        ]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        scales: {
+            y: { position: 'left', title: { display: true, text: 'Price' }, grid: { color: '#1e2a3a' } },
+            y1: { position: 'right', min: 0, max: 100, title: { display: true, text: 'F&G' }, grid: { drawOnChartArea: false } },
         },
         plugins: { legend: { labels: { usePointStyle: true } } }
     }
 });
 
-// === Volume chart ===
-new Chart(document.getElementById('chart-volume'), {
+// === Chart: Relative Strength ===
+const rsData = D.map(d => d.rs);
+new Chart(document.getElementById('ch-rs'), {
     type: 'bar',
     data: {
         labels,
         datasets: [{
-            label: 'Volume ($)',
-            data: volumes,
-            backgroundColor: volumes.map((v, i) => {
-                if (i === 0) return '#3b82f6';
-                return prices[i] >= prices[i-1] ? '#4ade80' : '#f87171';
-            }),
+            label: 'NEAR vs BTC (%)',
+            data: rsData,
+            backgroundColor: rsData.map(v => v >= 0 ? 'rgba(74,222,128,0.7)' : 'rgba(248,113,113,0.7)'),
             borderRadius: 3,
         }]
     },
     options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-            legend: { display: false },
-            tooltip: { callbacks: { label: ctx => '$' + (ctx.raw / 1e6).toFixed(0) + 'M' } }
-        },
-        scales: {
-            y: { ticks: { callback: v => '$' + (v / 1e6).toFixed(0) + 'M' },
-                 grid: { color: '#1e2a3a' } }
-        }
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: { y: { title: { display: true, text: 'Outperformance (pp)' }, grid: { color: '#1e2a3a' } } }
     }
 });
 
-// === Fear & Greed history ===
-new Chart(document.getElementById('chart-fg'), {
+// === Chart: Volume ===
+new Chart(document.getElementById('ch-vol'), {
+    type: 'bar',
+    data: {
+        labels,
+        datasets: [{
+            label: 'Volume',
+            data: D.map(d => d.nv),
+            backgroundColor: D.map((d, i) => i === 0 ? '#3b82f6' : d.np >= D[i-1].np ? '#4ade80' : '#f87171'),
+            borderRadius: 3,
+        }]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => '$' + (c.raw/1e6).toFixed(0) + 'M' } } },
+        scales: { y: { ticks: { callback: v => '$' + (v/1e6).toFixed(0) + 'M' }, grid: { color: '#1e2a3a' } } }
+    }
+});
+
+// === Chart: NEAR F&G History ===
+const nfgData = D.map(d => d.nfg);
+new Chart(document.getElementById('ch-nfg'), {
     type: 'line',
     data: {
         labels,
         datasets: [{
-            label: 'Fear & Greed',
-            data: fgValues,
-            borderColor: '#f97316',
-            backgroundColor: fgValues.map(v => v < 25 ? 'rgba(239,68,68,0.3)' : v < 50 ? 'rgba(249,115,22,0.3)' : 'rgba(132,204,22,0.3)'),
-            fill: true,
-            tension: 0.3,
-            pointRadius: 3,
-            pointBackgroundColor: fgValues.map(v => v < 25 ? '#ef4444' : v < 50 ? '#f97316' : '#84cc16'),
+            label: 'NEAR F&G',
+            data: nfgData,
+            borderColor: '#22c55e',
+            backgroundColor: ctx => {
+                const g = ctx.chart.ctx.createLinearGradient(0, 0, 0, ctx.chart.height);
+                g.addColorStop(0, 'rgba(34,197,94,0.3)');
+                g.addColorStop(1, 'rgba(34,197,94,0)');
+                return g;
+            },
+            fill: true, tension: 0.3, pointRadius: 3,
+            pointBackgroundColor: nfgData.map(v => v > 75 ? '#22c55e' : v > 50 ? '#84cc16' : v > 25 ? '#f97316' : '#ef4444'),
+            segment: { borderColor: ctx => {
+                const v = ctx.p1.parsed.y;
+                return v > 75 ? '#22c55e' : v > 50 ? '#84cc16' : v > 25 ? '#f97316' : '#ef4444';
+            }}
         }]
     },
     options: {
-        responsive: true,
-        maintainAspectRatio: false,
+        responsive: true, maintainAspectRatio: false,
         plugins: { legend: { display: false } },
         scales: {
             y: { min: 0, max: 100, grid: { color: '#1e2a3a' },
-                 ticks: { callback: v => { if(v===0) return 'Extreme Fear'; if(v===50) return 'Neutral'; if(v===100) return 'Extreme Greed'; return ''; } }
+                ticks: { callback: v => { if(v===0) return 'Fear'; if(v===50) return 'Neutral'; if(v===100) return 'Greed'; return ''; } }
             }
         }
     }
 });
 
-// === Daily change % ===
-const changes = prices.map((p, i) => i === 0 ? 0 : ((p - prices[i-1]) / prices[i-1] * 100));
-new Chart(document.getElementById('chart-change'), {
-    type: 'bar',
-    data: {
-        labels,
-        datasets: [{
-            label: 'Change %',
-            data: changes,
-            backgroundColor: changes.map(c => c >= 0 ? '#4ade80' : '#f87171'),
-            borderRadius: 3,
-        }]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
-        scales: {
-            y: { ticks: { callback: v => v.toFixed(0) + '%' }, grid: { color: '#1e2a3a' } }
-        }
-    }
-});
-
-// === GitHub ===
-new Chart(document.getElementById('chart-github'), {
-    type: 'doughnut',
-    data: {
-        labels: ['Stars', 'Forks', 'Commits/4w'],
-        datasets: [{
-            data: [SOCIAL.github_stars, SOCIAL.github_forks, SOCIAL.github_commits_4w],
-            backgroundColor: ['#3b82f6', '#8b5cf6', '#4ade80'],
-            borderWidth: 0,
-        }]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-            legend: { position: 'bottom', labels: { padding: 12 } }
-        }
-    }
-});
-
-// === Anomalies table ===
-const tbody = document.querySelector('#anomaly-table tbody');
-for (let i = 1; i < DATA.length; i++) {
-    const prev = DATA[i-1].p;
-    const curr = DATA[i].p;
-    const change = (curr - prev) / prev * 100;
-    if (Math.abs(change) > 10) {
+// === Anomalies ===
+const tbody = document.getElementById('anom-body');
+for (let i = 1; i < D.length; i++) {
+    if (Math.abs(D[i].nc) > 10) {
         const tr = document.createElement('tr');
-        const cls = change >= 0 ? 'up' : 'down';
+        const ncls = D[i].nc >= 0 ? 'up' : 'down';
+        const bcls = D[i].bc >= 0 ? 'up' : 'down';
+        const diff = D[i].nc - D[i].bc;
         tr.innerHTML = `
-            <td>${DATA[i].d}</td>
-            <td class="change ${cls}" style="font-weight:600">${change >= 0 ? '+' : ''}${change.toFixed(1)}%</td>
-            <td>$${curr.toFixed(4)}</td>
-            <td>$${(DATA[i].v / 1e6).toFixed(0)}M</td>
-            <td>${DATA[i].fg}/100 ${DATA[i].fc}</td>`;
+            <td>${D[i].d}</td>
+            <td class="${ncls}" style="font-weight:600">${D[i].nc >= 0 ? '+' : ''}${D[i].nc}%</td>
+            <td class="${bcls}">${D[i].bc >= 0 ? '+' : ''}${D[i].bc}%</td>
+            <td style="font-weight:600;color:${diff >= 0 ? '#4ade80' : '#f87171'}">${diff >= 0 ? '+' : ''}${diff.toFixed(1)}pp</td>
+            <td>$${(D[i].nv / 1e6).toFixed(0)}M</td>
+            <td>${D[i].nfg} ${D[i].nfc}</td>`;
         tbody.appendChild(tr);
     }
-}
-if (!tbody.children.length) {
-    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#6b7a8d">No anomalies detected</td></tr>';
 }
 </script>
 </body>

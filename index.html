@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEAR Protocol — Social Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: #0a0e17;
+    color: #e0e6ed;
+    min-height: 100vh;
+}
+
+.header {
+    background: linear-gradient(135deg, #0d1321 0%, #1a1f35 100%);
+    padding: 20px 30px;
+    border-bottom: 1px solid #1e2a3a;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+.header h1 {
+    font-size: 22px;
+    font-weight: 600;
+    background: linear-gradient(90deg, #00c6ff, #0072ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+.header .subtitle {
+    color: #6b7a8d;
+    font-size: 13px;
+}
+.header .badge {
+    background: #1a3a2a;
+    color: #4ade80;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+}
+.header .badge.trending {
+    background: #3a2a1a;
+    color: #fbbf24;
+}
+
+/* Карточки KPI */
+.kpi-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    padding: 20px 30px;
+}
+.kpi {
+    background: #111827;
+    border: 1px solid #1e2a3a;
+    border-radius: 12px;
+    padding: 16px;
+}
+.kpi .label {
+    font-size: 11px;
+    color: #6b7a8d;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+}
+.kpi .value {
+    font-size: 24px;
+    font-weight: 700;
+    color: #fff;
+}
+.kpi .change {
+    font-size: 13px;
+    margin-top: 4px;
+}
+.kpi .change.up { color: #4ade80; }
+.kpi .change.down { color: #f87171; }
+
+/* Графики */
+.charts {
+    padding: 10px 30px 30px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+.chart-card {
+    background: #111827;
+    border: 1px solid #1e2a3a;
+    border-radius: 12px;
+    padding: 20px;
+}
+.chart-card.full { grid-column: 1 / -1; }
+.chart-card h3 {
+    font-size: 14px;
+    color: #9ca3af;
+    margin-bottom: 12px;
+    font-weight: 500;
+}
+.chart-wrap {
+    position: relative;
+    height: 250px;
+}
+.chart-card.full .chart-wrap { height: 300px; }
+
+/* Fear & Greed баром */
+.fg-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 30px;
+}
+.fg-meter {
+    flex: 1;
+    height: 28px;
+    background: linear-gradient(90deg, #ef4444 0%, #f97316 25%, #eab308 50%, #84cc16 75%, #22c55e 100%);
+    border-radius: 14px;
+    position: relative;
+}
+.fg-needle {
+    position: absolute;
+    top: -4px;
+    width: 4px;
+    height: 36px;
+    background: #fff;
+    border-radius: 2px;
+    box-shadow: 0 0 8px rgba(255,255,255,0.5);
+    transition: left 0.5s ease;
+}
+.fg-label {
+    font-size: 13px;
+    color: #9ca3af;
+    min-width: 120px;
+}
+.fg-value {
+    font-size: 28px;
+    font-weight: 700;
+    min-width: 60px;
+    text-align: right;
+}
+
+/* Trending */
+.trending-row {
+    padding: 0 30px 20px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+.trend-chip {
+    background: #1e2a3a;
+    padding: 5px 12px;
+    border-radius: 16px;
+    font-size: 12px;
+    color: #9ca3af;
+}
+.trend-chip.near {
+    background: #1a3a2a;
+    color: #4ade80;
+    font-weight: 600;
+    border: 1px solid #4ade80;
+}
+
+/* Таблица аномалий */
+.anomalies {
+    padding: 0 30px 30px;
+}
+.anomalies table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #111827;
+    border-radius: 12px;
+    overflow: hidden;
+}
+.anomalies th {
+    background: #1a1f35;
+    padding: 10px 16px;
+    text-align: left;
+    font-size: 12px;
+    color: #6b7a8d;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.anomalies td {
+    padding: 10px 16px;
+    font-size: 14px;
+    border-top: 1px solid #1e2a3a;
+}
+
+.section-title {
+    padding: 10px 30px 8px;
+    font-size: 13px;
+    color: #6b7a8d;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+@media (max-width: 768px) {
+    .charts { grid-template-columns: 1fr; }
+    .kpi-row { grid-template-columns: repeat(2, 1fr); }
+}
+</style>
+</head>
+<body>
+
+<script>
+// === ДАННЫЕ (встраиваются из near_social.db) ===
+const DATA = [{"d":"2026-02-02","p":1.174,"v":183464580,"m":1512326835,"fg":14,"fc":"Extreme Fear"},{"d":"2026-02-03","p":1.1987,"v":215877670,"m":1542585966,"fg":17,"fc":"Extreme Fear"},{"d":"2026-02-04","p":1.1723,"v":195035131,"m":1508899188,"fg":14,"fc":"Extreme Fear"},{"d":"2026-02-05","p":1.1615,"v":168582858,"m":1495051771,"fg":12,"fc":"Extreme Fear"},{"d":"2026-02-06","p":0.9786,"v":375623479,"m":1262067178,"fg":9,"fc":"Extreme Fear"},{"d":"2026-02-07","p":1.0871,"v":336996290,"m":1399158941,"fg":6,"fc":"Extreme Fear"},{"d":"2026-02-08","p":1.0749,"v":171312639,"m":1383800558,"fg":7,"fc":"Extreme Fear"},{"d":"2026-02-09","p":1.0405,"v":88673828,"m":1338888892,"fg":14,"fc":"Extreme Fear"},{"d":"2026-02-10","p":1.0299,"v":119672211,"m":1326385434,"fg":9,"fc":"Extreme Fear"},{"d":"2026-02-11","p":0.9917,"v":131369457,"m":1276769431,"fg":11,"fc":"Extreme Fear"},{"d":"2026-02-12","p":0.9605,"v":169799503,"m":1236696130,"fg":5,"fc":"Extreme Fear"},{"d":"2026-02-13","p":0.962,"v":145698134,"m":1238344481,"fg":9,"fc":"Extreme Fear"},{"d":"2026-02-14","p":1.0221,"v":132628297,"m":1315937220,"fg":9,"fc":"Extreme Fear"},{"d":"2026-02-15","p":1.0847,"v":144231813,"m":1397391531,"fg":8,"fc":"Extreme Fear"},{"d":"2026-02-16","p":1.0551,"v":152857451,"m":1358424253,"fg":12,"fc":"Extreme Fear"},{"d":"2026-02-17","p":1.0577,"v":151765928,"m":1361800424,"fg":10,"fc":"Extreme Fear"},{"d":"2026-02-18","p":1.044,"v":134331104,"m":1344439693,"fg":8,"fc":"Extreme Fear"},{"d":"2026-02-19","p":1.012,"v":116602308,"m":1301425847,"fg":9,"fc":"Extreme Fear"},{"d":"2026-02-20","p":1.0057,"v":112537443,"m":1295637731,"fg":7,"fc":"Extreme Fear"},{"d":"2026-02-21","p":1.0515,"v":139022978,"m":1351699468,"fg":8,"fc":"Extreme Fear"},{"d":"2026-02-22","p":1.0593,"v":121118692,"m":1364888091,"fg":9,"fc":"Extreme Fear"},{"d":"2026-02-23","p":1.0176,"v":77886278,"m":1310667058,"fg":5,"fc":"Extreme Fear"},{"d":"2026-02-24","p":0.9788,"v":117501108,"m":1261272040,"fg":8,"fc":"Extreme Fear"},{"d":"2026-02-25","p":0.9677,"v":88832115,"m":1247972315,"fg":11,"fc":"Extreme Fear"},{"d":"2026-02-26","p":1.1704,"v":297580643,"m":1507521528,"fg":11,"fc":"Extreme Fear"},{"d":"2026-02-27","p":1.1276,"v":210405683,"m":1453967609,"fg":13,"fc":"Extreme Fear"},{"d":"2026-02-28","p":1.0934,"v":197865700,"m":1408963532,"fg":11,"fc":"Extreme Fear"},{"d":"2026-03-01","p":1.1655,"v":265925316,"m":1500885177,"fg":14,"fc":"Extreme Fear"},{"d":"2026-03-02","p":1.1478,"v":245985707,"m":1477329182,"fg":10,"fc":"Extreme Fear"},{"d":"2026-03-03","p":1.3396,"v":814698904,"m":1728152496,"fg":14,"fc":"Extreme Fear"}];
+
+const SNAP = {"price_usd":1.34,"volume_24h":814481336,"market_cap":1728152496,"price_change_24h":11.89,"price_change_7d":37.42,"price_change_30d":12.55,"ath":20.44,"ath_date":"2022-01-16","atl":0.527};
+
+const SOCIAL = {"twitter_followers":0,"reddit_subscribers":0,"reddit_active_users":0,"github_forks":759,"github_stars":2555,"github_commits_4w":97,"coingecko_rank":45};
+
+const TRENDING = [{"symbol":"PENGU","near_in_trending":0},{"symbol":"NEAR","near_in_trending":1},{"symbol":"AAVE","near_in_trending":0},{"symbol":"BTC","near_in_trending":0},{"symbol":"VVV","near_in_trending":0},{"symbol":"ROBO","near_in_trending":0},{"symbol":"POWER","near_in_trending":0},{"symbol":"SOL","near_in_trending":0},{"symbol":"HYPE","near_in_trending":0},{"symbol":"ETH","near_in_trending":0},{"symbol":"XAUT","near_in_trending":0},{"symbol":"FAI","near_in_trending":0},{"symbol":"AERO","near_in_trending":0},{"symbol":"RIVER","near_in_trending":0},{"symbol":"SUI","near_in_trending":0}];
+</script>
+
+<!-- Header -->
+<div class="header">
+    <h1>NEAR Protocol</h1>
+    <span class="subtitle">Social & Market Dashboard</span>
+    <span class="badge" id="rank-badge"></span>
+    <span class="badge trending" id="trend-badge" style="display:none">TRENDING</span>
+</div>
+
+<!-- KPI Cards -->
+<div class="kpi-row" id="kpi-row"></div>
+
+<!-- Fear & Greed -->
+<div class="section-title">Market Sentiment</div>
+<div class="fg-bar">
+    <div class="fg-value" id="fg-val"></div>
+    <div class="fg-meter"><div class="fg-needle" id="fg-needle"></div></div>
+    <div class="fg-label" id="fg-label"></div>
+</div>
+
+<!-- Trending -->
+<div class="section-title">CoinGecko Trending</div>
+<div class="trending-row" id="trending-row"></div>
+
+<!-- Charts -->
+<div class="charts">
+    <div class="chart-card full">
+        <h3>NEAR Price + Fear & Greed Index (30d)</h3>
+        <div class="chart-wrap"><canvas id="chart-main"></canvas></div>
+    </div>
+    <div class="chart-card">
+        <h3>Volume 24h</h3>
+        <div class="chart-wrap"><canvas id="chart-volume"></canvas></div>
+    </div>
+    <div class="chart-card">
+        <h3>Fear & Greed History</h3>
+        <div class="chart-wrap"><canvas id="chart-fg"></canvas></div>
+    </div>
+    <div class="chart-card">
+        <h3>Daily Price Change %</h3>
+        <div class="chart-wrap"><canvas id="chart-change"></canvas></div>
+    </div>
+    <div class="chart-card">
+        <h3>GitHub Activity</h3>
+        <div class="chart-wrap"><canvas id="chart-github"></canvas></div>
+    </div>
+</div>
+
+<!-- Anomalies -->
+<div class="section-title">Price Anomalies (>10% daily change)</div>
+<div class="anomalies"><table id="anomaly-table">
+    <thead><tr><th>Date</th><th>Change</th><th>Price</th><th>Volume</th><th>Fear&Greed</th></tr></thead>
+    <tbody></tbody>
+</table></div>
+
+<script>
+// === Chart.js defaults ===
+Chart.defaults.color = '#9ca3af';
+Chart.defaults.borderColor = '#1e2a3a';
+Chart.defaults.font.family = "'Segoe UI', system-ui, sans-serif";
+
+const labels = DATA.map(d => d.d.slice(5)); // MM-DD
+const prices = DATA.map(d => d.p);
+const volumes = DATA.map(d => d.v);
+const fgValues = DATA.map(d => d.fg);
+
+// === KPI ===
+const kpis = [
+    { label: 'Price', value: '$' + SNAP.price_usd.toFixed(4), change: SNAP.price_change_24h, suffix: '% 24h' },
+    { label: '7D Change', value: (SNAP.price_change_7d > 0 ? '+' : '') + SNAP.price_change_7d.toFixed(2) + '%', change: SNAP.price_change_7d },
+    { label: '30D Change', value: (SNAP.price_change_30d > 0 ? '+' : '') + SNAP.price_change_30d.toFixed(2) + '%', change: SNAP.price_change_30d },
+    { label: 'Volume 24h', value: '$' + (SNAP.volume_24h / 1e6).toFixed(0) + 'M' },
+    { label: 'Market Cap', value: '$' + (SNAP.market_cap / 1e9).toFixed(2) + 'B' },
+    { label: 'ATH Distance', value: '-' + ((1 - SNAP.price_usd / SNAP.ath) * 100).toFixed(0) + '%', sub: 'ATH: $' + SNAP.ath.toFixed(2) },
+    { label: 'GitHub Stars', value: SOCIAL.github_stars.toLocaleString() },
+    { label: 'Commits/4w', value: SOCIAL.github_commits_4w },
+];
+
+const kpiRow = document.getElementById('kpi-row');
+kpis.forEach(k => {
+    const div = document.createElement('div');
+    div.className = 'kpi';
+    let changeHtml = '';
+    if (k.change !== undefined) {
+        const cls = k.change >= 0 ? 'up' : 'down';
+        const arrow = k.change >= 0 ? '+' : '';
+        changeHtml = `<div class="change ${cls}">${arrow}${k.change.toFixed(2)}${k.suffix || '%'}</div>`;
+    }
+    if (k.sub) changeHtml = `<div class="change" style="color:#6b7a8d">${k.sub}</div>`;
+    div.innerHTML = `<div class="label">${k.label}</div><div class="value">${k.value}</div>${changeHtml}`;
+    kpiRow.appendChild(div);
+});
+
+document.getElementById('rank-badge').textContent = '#' + SOCIAL.coingecko_rank;
+if (TRENDING.some(t => t.near_in_trending)) {
+    document.getElementById('trend-badge').style.display = '';
+}
+
+// === Fear & Greed ===
+const latestFG = DATA[DATA.length - 1];
+document.getElementById('fg-val').textContent = latestFG.fg;
+document.getElementById('fg-val').style.color = latestFG.fg < 25 ? '#ef4444' : latestFG.fg < 50 ? '#f97316' : latestFG.fg < 75 ? '#84cc16' : '#22c55e';
+document.getElementById('fg-needle').style.left = latestFG.fg + '%';
+document.getElementById('fg-label').textContent = latestFG.fc;
+
+// === Trending chips ===
+const trendRow = document.getElementById('trending-row');
+TRENDING.forEach(t => {
+    const chip = document.createElement('span');
+    chip.className = 'trend-chip' + (t.near_in_trending ? ' near' : '');
+    chip.textContent = '$' + t.symbol;
+    trendRow.appendChild(chip);
+});
+
+// === Main chart: Price + F&G ===
+new Chart(document.getElementById('chart-main'), {
+    type: 'line',
+    data: {
+        labels,
+        datasets: [{
+            label: 'NEAR Price ($)',
+            data: prices,
+            borderColor: '#3b82f6',
+            backgroundColor: 'rgba(59,130,246,0.1)',
+            fill: true,
+            tension: 0.3,
+            pointRadius: 2,
+            yAxisID: 'y',
+        }, {
+            label: 'Fear & Greed',
+            data: fgValues,
+            borderColor: '#f97316',
+            borderDash: [5, 3],
+            tension: 0.3,
+            pointRadius: 2,
+            yAxisID: 'y1',
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        scales: {
+            y: { position: 'left', title: { display: true, text: 'Price ($)' },
+                 grid: { color: '#1e2a3a' } },
+            y1: { position: 'right', min: 0, max: 100,
+                  title: { display: true, text: 'F&G' },
+                  grid: { drawOnChartArea: false } },
+        },
+        plugins: { legend: { labels: { usePointStyle: true } } }
+    }
+});
+
+// === Volume chart ===
+new Chart(document.getElementById('chart-volume'), {
+    type: 'bar',
+    data: {
+        labels,
+        datasets: [{
+            label: 'Volume ($)',
+            data: volumes,
+            backgroundColor: volumes.map((v, i) => {
+                if (i === 0) return '#3b82f6';
+                return prices[i] >= prices[i-1] ? '#4ade80' : '#f87171';
+            }),
+            borderRadius: 3,
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { display: false },
+            tooltip: { callbacks: { label: ctx => '$' + (ctx.raw / 1e6).toFixed(0) + 'M' } }
+        },
+        scales: {
+            y: { ticks: { callback: v => '$' + (v / 1e6).toFixed(0) + 'M' },
+                 grid: { color: '#1e2a3a' } }
+        }
+    }
+});
+
+// === Fear & Greed history ===
+new Chart(document.getElementById('chart-fg'), {
+    type: 'line',
+    data: {
+        labels,
+        datasets: [{
+            label: 'Fear & Greed',
+            data: fgValues,
+            borderColor: '#f97316',
+            backgroundColor: fgValues.map(v => v < 25 ? 'rgba(239,68,68,0.3)' : v < 50 ? 'rgba(249,115,22,0.3)' : 'rgba(132,204,22,0.3)'),
+            fill: true,
+            tension: 0.3,
+            pointRadius: 3,
+            pointBackgroundColor: fgValues.map(v => v < 25 ? '#ef4444' : v < 50 ? '#f97316' : '#84cc16'),
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+            y: { min: 0, max: 100, grid: { color: '#1e2a3a' },
+                 ticks: { callback: v => { if(v===0) return 'Extreme Fear'; if(v===50) return 'Neutral'; if(v===100) return 'Extreme Greed'; return ''; } }
+            }
+        }
+    }
+});
+
+// === Daily change % ===
+const changes = prices.map((p, i) => i === 0 ? 0 : ((p - prices[i-1]) / prices[i-1] * 100));
+new Chart(document.getElementById('chart-change'), {
+    type: 'bar',
+    data: {
+        labels,
+        datasets: [{
+            label: 'Change %',
+            data: changes,
+            backgroundColor: changes.map(c => c >= 0 ? '#4ade80' : '#f87171'),
+            borderRadius: 3,
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+            y: { ticks: { callback: v => v.toFixed(0) + '%' }, grid: { color: '#1e2a3a' } }
+        }
+    }
+});
+
+// === GitHub ===
+new Chart(document.getElementById('chart-github'), {
+    type: 'doughnut',
+    data: {
+        labels: ['Stars', 'Forks', 'Commits/4w'],
+        datasets: [{
+            data: [SOCIAL.github_stars, SOCIAL.github_forks, SOCIAL.github_commits_4w],
+            backgroundColor: ['#3b82f6', '#8b5cf6', '#4ade80'],
+            borderWidth: 0,
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { position: 'bottom', labels: { padding: 12 } }
+        }
+    }
+});
+
+// === Anomalies table ===
+const tbody = document.querySelector('#anomaly-table tbody');
+for (let i = 1; i < DATA.length; i++) {
+    const prev = DATA[i-1].p;
+    const curr = DATA[i].p;
+    const change = (curr - prev) / prev * 100;
+    if (Math.abs(change) > 10) {
+        const tr = document.createElement('tr');
+        const cls = change >= 0 ? 'up' : 'down';
+        tr.innerHTML = `
+            <td>${DATA[i].d}</td>
+            <td class="change ${cls}" style="font-weight:600">${change >= 0 ? '+' : ''}${change.toFixed(1)}%</td>
+            <td>$${curr.toFixed(4)}</td>
+            <td>$${(DATA[i].v / 1e6).toFixed(0)}M</td>
+            <td>${DATA[i].fg}/100 ${DATA[i].fc}</td>`;
+        tbody.appendChild(tr);
+    }
+}
+if (!tbody.children.length) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#6b7a8d">No anomalies detected</td></tr>';
+}
+</script>
+</body>
+</html>
